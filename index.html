@@ -73,20 +73,13 @@
 
   .hero { margin-top:12px; display:none; justify-content:center }
   .hero img{
-  width:280px;   /* ← 180 から大きく */
-  height:280px;  /* ← 180 から大きく */
-  object-fit:contain;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#fff;
-  box-shadow:0 6px 14px rgba(0,0,0,.06);
-}
-  @media (max-width:480px){
-  .hero img{
-    width:200px;
-    height:200px;
+    width:280px; height:280px; object-fit:contain;   /* ここで大きさ調整 */
+    border:1px solid var(--line); border-radius:14px; background:#fff;
+    box-shadow:0 6px 14px rgba(0,0,0,.06);
   }
-}
+  @media (max-width:480px){
+    .hero img{ width:200px; height:200px; }
+  }
 </style>
 </head>
 <body>
@@ -96,6 +89,13 @@
     <p class="lead">10問・5段階の自己評価で、あなたの“器用貧乏の型”を判定します。翻訳者／触媒／編集プロデューサー／実装ディレクター／アイデアメーカーの5タイプ。</p>
 
     <form id="form"></form>
+
+    <!-- 匿名集計への同意チェック -->
+    <label class="muted" style="display:block;margin-top:8px;">
+      <input type="checkbox" id="consent" style="margin-right:6px;">
+      匿名で集計に協力する（結果のみ送信。個人情報は取得しません）
+    </label>
+
     <div class="btns">
       <button type="button" id="calc">診断する</button>
       <button type="button" id="reset" class="secondary">リセット</button>
@@ -162,6 +162,8 @@
 <script>
 /* ============ 設定 ============ */
 const SITE_URL = ''; // 例: 'https://kanbeylab.github.io/Rich-in-Versatility/'
+const SAVE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzd-pQjhPu2oAIpAi_-mqKM8C7gzza6yHSw-gycjXw4FX0PKB1zigdlr6P0o1tad3Qj/exec'; // ←GAS /exec
+
 const TYPES = [
   { key:'translator', name:'翻訳者型', order:1 },
   { key:'catalyst',   name:'触媒型', order:2 },
@@ -193,13 +195,13 @@ const TYPE_IMAGES = {
   director:   'director.png',
   ideator:    'ideator.png'
 };
-// 画像未設置でも崩れないプレースホルダー（薄グレー）
+// プレースホルダー（未設置でも崩れない）
 const FALLBACK_DATA_URL =
   'data:image/svg+xml;utf8,' +
-  encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180">
+  encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280">
   <rect width="100%" height="100%" rx="14" ry="14" fill="#f3f4f6" stroke="#e5e7eb"/>
-  <circle cx="90" cy="75" r="36" fill="#e5e7eb"/>
-  <rect x="35" y="125" width="110" height="20" rx="10" fill="#e5e7eb"/>
+  <circle cx="140" cy="110" r="60" fill="#e5e7eb"/>
+  <rect x="70" y="200" width="140" height="30" rx="15" fill="#e5e7eb"/>
 </svg>`);
 
 /* ============ フィードバック文 ============ */
@@ -310,6 +312,11 @@ function calcAndRender(){
   // シェア更新
   setShareLinks(winner.name);
 
+  // 匿名保存（同意時のみ）
+  if (document.getElementById('consent')?.checked) {
+    saveAnon({ type: winner.name, points });
+  }
+
   // スクロール
   window.scrollTo({top:card.offsetTop-8, behavior:'smooth'});
 }
@@ -344,6 +351,25 @@ function setShareLinks(typeName){
     `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
   document.getElementById('lnshare').href =
     `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(site)}`;
+}
+
+/* ============ 匿名保存 ============ */
+async function saveAnon(payload){
+  if(!SAVE_ENDPOINT) return; // 未設定なら何もしない
+  try{
+    await fetch(SAVE_ENDPOINT, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        type: payload.type,     // 判定型名
+        points: payload.points, // スコア
+        ua: navigator.userAgent,
+        note: 'webapp-v1'
+      })
+    });
+  }catch(e){
+    console.log('save skipped', e);
+  }
 }
 
 /* ============ イベント接続 ============ */
