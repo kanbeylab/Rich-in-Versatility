@@ -8,25 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#ffffff;
-    --panel:#f9fafb;
-    --ink:#111827;
-    --muted:#6b7280;
-    --line:#e5e7eb;
-    --hi:#2563eb;
-  }
+  :root{ --bg:#fff; --panel:#f9fafb; --ink:#111827; --muted:#6b7280; --line:#e5e7eb; --hi:#2563eb; }
   *{box-sizing:border-box}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-    line-height:1.6;
-  }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; line-height:1.6; }
   .wrap{max-width:960px;margin:40px auto;padding:0 16px}
-  .card{
-    background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:22px;
-    box-shadow:0 8px 20px rgba(0,0,0,.06)
-  }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:22px; box-shadow:0 8px 20px rgba(0,0,0,.06) }
   h1{margin:0 0 6px;font-size:28px;font-weight:800}
   .lead{color:var(--muted);margin:0 0 18px}
   h2{margin:16px 0 8px;font-size:18px}
@@ -34,47 +20,25 @@
   .q label{display:block;font-weight:700;margin-bottom:8px}
   .scale{display:flex;gap:8px;flex-wrap:wrap}
   .scale input{display:none}
-  .scale label{
-    flex:1; min-width:64px; text-align:center; padding:10px;
-    border:1px solid #d1d5db; border-radius:10px; cursor:pointer; color:#374151; background:#fff
-  }
-  .scale input:checked+label{
-    border-color:var(--hi); background:#eff6ff; color:#111827; box-shadow:0 0 0 2px rgba(37,99,235,.15) inset
-  }
+  .scale label{ flex:1; min-width:64px; text-align:center; padding:10px; border:1px solid #d1d5db; border-radius:10px; cursor:pointer; color:#374151; background:#fff }
+  .scale input:checked+label{ border-color:var(--hi); background:#eff6ff; color:#111827; box-shadow:0 0 0 2px rgba(37,99,235,.15) inset }
   .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
-  button{
-    background:var(--hi); border:none; color:#fff; padding:12px 16px; border-radius:12px; font-weight:800; cursor:pointer
-  }
+  button{ background:var(--hi); border:none; color:#fff; padding:12px 16px; border-radius:12px; font-weight:800; cursor:pointer }
   button.secondary{ background:#e5e7eb; color:#111827 }
   .muted{color:var(--muted)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .row > div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
-  .pill{
-    display:inline-block;padding:3px 10px;border:1px solid var(--line);
-    border-radius:999px;font-size:12px;color:#1f2937;background:#fff
-  }
+  .row>div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
+  .pill{ display:inline-block;padding:3px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;color:#1f2937;background:#fff }
   .share{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-  input[type="text"], input[type="email"]{
-    width:100%;padding:10px;border-radius:10px;border:1px solid #d1d5db;background:#fff;color:#111827
-  }
-  canvas{background:#ffffff;border-radius:12px;padding:12px;border:1px solid var(--line)}
+  canvas{background:#fff;border-radius:12px;padding:12px;border:1px solid var(--line)}
   @media (max-width:840px){ .row{grid-template-columns:1fr} }
   a.pill{ text-decoration:none }
-
-  /* 中央表示＋画像 */
-  .winner-section{
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; margin:24px 0;
-  }
+  .winner-section{ display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; margin:24px 0; }
   .winner-big{ font-size:36px; font-weight:900; line-height:1.4; margin-top:12px; }
   @media (max-width:480px){ .winner-big{ font-size:30px; } }
-  .hero { margin-top:12px; display:none; justify-content:center }
-  .hero img{
-    width:280px; height:280px; object-fit:contain;
-    border:1px solid var(--line); border-radius:14px; background:#fff;
-    box-shadow:0 6px 14px rgba(0,0,0,.06);
-  }
-  @media (max-width:480px){ .hero img{ width:200px; height:200px; } }
+  .hero{ margin-top:12px; display:none; justify-content:center }
+  .hero img{ width:280px; height:280px; object-fit:contain; border:1px solid var(--line); border-radius:14px; background:#fff; box-shadow:0 6px 14px rgba(0,0,0,.06) }
+  @media (max-width:480px){ .hero img{ width:200px; height:200px } }
 </style>
 </head>
 <body>
@@ -92,28 +56,24 @@
     </label>
 
     <div class="btns">
-      <button type="button" id="calc">診断する</button>
+      <!-- 直接呼び：イベント未接続の疑いを排除 -->
+      <button type="button" id="calc" onclick="calcAndRender()">診断する</button>
       <button type="button" id="reset" class="secondary">リセット</button>
+     
     </div>
   </div>
 
   <div id="resultCard" class="card" style="margin-top:16px;display:none">
     <div class="row">
-      <!-- 左：判定 -->
       <div>
         <h2>あなたの型（判定）</h2>
         <div class="winner-section">
           <div id="winner" class="winner-big"></div>
           <div id="summary" class="muted" style="margin-top:8px"></div>
-          <div id="hero" class="hero" aria-hidden="true">
-            <img id="heroImg" alt="">
-          </div>
-          <div id="tieWrap" style="margin-top:8px">
-            <span id="tieNote" class="pill" style="display:none">同点は優先順で判定</span>
-          </div>
+          <div id="hero" class="hero" aria-hidden="true"><img id="heroImg" alt=""></div>
+          <div id="tieWrap" style="margin-top:8px"><span id="tieNote" class="pill" style="display:none">同点は優先順で判定</span></div>
         </div>
       </div>
-      <!-- 右：レーダーチャート -->
       <div>
         <h2>タイプ別スコア</h2>
         <canvas id="chart" height="200" aria-label="タイプ別スコアのレーダーチャート"></canvas>
@@ -122,16 +82,12 @@
 
     <div class="row" style="margin-top:16px">
       <div>
-        <h2>強み</h2>
-        <div id="strength"></div>
-        <h2 style="margin-top:14px">よくある悩み</h2>
-        <div id="pain"></div>
+        <h2>強み</h2><div id="strength"></div>
+        <h2 style="margin-top:14px">よくある悩み</h2><div id="pain"></div>
       </div>
       <div>
-        <h2>器用リッチに進化すると</h2>
-        <div id="evolve"></div>
-        <h2 style="margin-top:14px">次の一手（14日）</h2>
-        <ol id="actions"></ol>
+        <h2>器用リッチに進化すると</h2><div id="evolve"></div>
+        <h2 style="margin-top:14px">次の一手（14日）</h2><ol id="actions"></ol>
       </div>
     </div>
 
@@ -145,21 +101,19 @@
         <a id="lnshare" class="pill" target="_blank" rel="noopener">LinkedInでシェア</a>
       </div>
       <p class="muted" style="margin-top:6px">#器用貧乏の型診断</p>
-      <!-- 送信ステータス -->
       <p id="saveStatus" class="muted" style="margin-top:6px;"></p>
     </div>
   </div>
 </div>
 
-<!-- ライブラリ -->
+<!-- Libs -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <script>
-/* ============ 設定 ============ */
+/* ===== 設定 ===== */
 const SITE_URL = '';
-// あなたの /exec（公開済み・全員）エンドポイント
 const SAVE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwSc5kZZFv5AI-HSZXk2p4r_M23dd51MZDMK6yAIpKfksN-x_QQpJDKitFRkxG0444B/exec';
 
 const TYPES = [
@@ -186,56 +140,19 @@ const QUESTIONS = [
 /* 画像（任意） */
 const SHOW_IMAGE = true;
 const IMAGE_BASE = 'assets';
-const TYPE_IMAGES = {
-  translator: 'translator.png',
-  catalyst:   'catalyst.png',
-  editor:     'editor.png',
-  director:   'director.png',
-  ideator:    'ideator.png'
-};
-const FALLBACK_DATA_URL =
-  'data:image/svg+xml;utf8,' +
-  encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280">
-  <rect width="100%" height="100%" rx="14" ry="14" fill="#f3f4f6" stroke="#e5e7eb"/>
-  <circle cx="140" cy="110" r="60" fill="#e5e7eb"/>
-  <rect x="70" y="200" width="140" height="30" rx="15" fill="#e5e7eb"/>
-</svg>`);
+const TYPE_IMAGES = { translator:'translator.png', catalyst:'catalyst.png', editor:'editor.png', director:'director.png', ideator:'ideator.png' };
+const FALLBACK_DATA_URL = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280"><rect width="100%" height="100%" rx="14" ry="14" fill="#f3f4f6" stroke="#e5e7eb"/><circle cx="140" cy="110" r="60" fill="#e5e7eb"/><rect x="70" y="200" width="140" height="30" rx="15" fill="#e5e7eb"/></svg>`);
 
-/* ============ フィードバック文 ============ */
+/* ===== フィードバック文 ===== */
 const FEEDBACK = {
-  translator: {
-    strength:'専門的で難しいことを、誰にでもわかる言葉で説明できる。',
-    pain:'「説明係」で終わり専門性が伝わりにくい。',
-    evolve:'知の翻訳家として研修・出版・ファシリテーションで活躍可能。',
-    actions:['翻訳プロセスを3ステップで言語化','よくある質問5件に1分回答','図解テンプレを1枚作成']
-  },
-  catalyst: {
-    strength:'人と人をつなぎ化学反応を起こす。',
-    pain:'専門性が弱く見えがち。',
-    evolve:'共創コミュニティを動かすファシリテーターに。',
-    actions:['紹介カードを週3件書く','イベント後24h以内に3件連絡','つなぐ分野を2つに絞る']
-  },
-  editor: {
-    strength:'情報を整理・編集し、伝わる形にできる。',
-    pain:'まとめ役に回りがちで発信力が弱い。',
-    evolve:'Zineや教材化で編集力を資産化できる。',
-    actions:['構造テンプレを固定','事例3枚スライド化','月1回Zine発行']
-  },
-  director: {
-    strength:'段取り・推進力に優れる。',
-    pain:'裏方で消耗しやすい。',
-    evolve:'B2B伴走やライセンス展開で価値を資産化可能。',
-    actions:['案件の流れを1枚化','週次チェックリスト化','提案書テンプレを作成']
-  },
-  ideator: {
-    strength:'新しい発想や企画を次々と生み出せる。',
-    pain:'形にできず途中で飽きがち。',
-    evolve:'企画モデルを再現可能に整理できる。',
-    actions:['アイデア選定基準を数値化','1本に2週間集中ルール','毎週ミニ検証サイクル']
-  }
+  translator:{strength:'専門的で難しいことを、誰にでもわかる言葉で説明できる。',pain:'「説明係」で終わり専門性が伝わりにくい。',evolve:'知の翻訳家として研修・出版・ファシリテーションで活躍可能。',actions:['翻訳プロセスを3ステップで言語化','よくある質問5件に1分回答','図解テンプレを1枚作成']},
+  catalyst:{strength:'人と人をつなぎ化学反応を起こす。',pain:'専門性が弱く見えがち。',evolve:'共創コミュニティを動かすファシリテーターに。',actions:['紹介カードを週3件書く','イベント後24h以内に3件連絡','つなぐ分野を2つに絞る']},
+  editor:{strength:'情報を整理・編集し、伝わる形にできる。',pain:'まとめ役に回りがちで発信力が弱い。',evolve:'Zineや教材化で編集力を資産化できる。',actions:['構造テンプレを固定','事例3枚スライド化','月1回Zine発行']},
+  director:{strength:'段取り・推進力に優れる。',pain:'裏方で消耗しやすい。',evolve:'B2B伴走やライセンス展開で価値を資産化可能。',actions:['案件の流れを1枚化','週次チェックリスト化','提案書テンプレを作成']},
+  ideator:{strength:'新しい発想や企画を次々と生み出せる。',pain:'形にできず途中で飽きがち。',evolve:'企画モデルを再現可能に整理できる。',actions:['アイデア選定基準を数値化','1本に2週間集中ルール','毎週ミニ検証サイクル']}
 };
 
-/* ============ 設問描画 ============ */
+/* ===== 設問描画 ===== */
 const form = document.getElementById('form');
 QUESTIONS.forEach((q,i)=>{
   const div=document.createElement('div');div.className='q';
@@ -248,148 +165,109 @@ QUESTIONS.forEach((q,i)=>{
   form.appendChild(div);
 });
 
-/* ============ 診断/表示 ============ */
+/* ===== 診断＆描画 ===== */
 let chart;
 
 async function calcAndRender(){
-  // 集計
+  console.log('calcAndRender start'); // 発火確認
   const points={translator:0,catalyst:0,editor:0,director:0,ideator:0};
   for(const q of QUESTIONS){
     const v=document.querySelector(`input[name=${q.id}]:checked`);
     if(!v){ alert('全て回答してください'); return; }
     points[q.type]+=Number(v.value);
   }
-  // 勝者（同点は order 優先）
+
   const sorted=TYPES.map(t=>({key:t.key,name:t.name,score:points[t.key],order:t.order}))
     .sort((a,b)=> b.score===a.score ? a.order-b.order : b.score-a.score);
   const winner=sorted[0];
   const tie = sorted.filter(s=>s.score===winner.score).length>1;
   const fb=FEEDBACK[winner.key];
 
-  // 表示
-  const card = document.getElementById('resultCard'); card.style.display='block';
-  const wEl = document.getElementById('winner');
-  wEl.textContent = `あなたは「${winner.name}」です`;
-  wEl.classList.add('winner-big');
+  const card=document.getElementById('resultCard'); card.style.display='block';
+  const wEl=document.getElementById('winner'); wEl.textContent=`あなたは「${winner.name}」です`; wEl.classList.add('winner-big');
 
-  document.getElementById('summary').textContent=
-    `翻訳者${points.translator}／触媒${points.catalyst}／編集${points.editor}／実装${points.director}／アイデア${points.ideator}`;
+  document.getElementById('summary').textContent = `翻訳者${points.translator}／触媒${points.catalyst}／編集${points.editor}／実装${points.director}／アイデア${points.ideator}`;
   document.getElementById('tieNote').style.display = tie ? 'inline-block' : 'none';
   document.getElementById('strength').textContent=fb.strength;
   document.getElementById('pain').textContent=fb.pain;
   document.getElementById('evolve').textContent=fb.evolve;
 
-  const ol=document.getElementById('actions'); ol.innerHTML='';
-  fb.actions.forEach(a=>{ const li=document.createElement('li'); li.textContent=a; ol.appendChild(li); });
+  const ol=document.getElementById('actions'); ol.innerHTML=''; fb.actions.forEach(a=>{ const li=document.createElement('li'); li.textContent=a; ol.appendChild(li); });
 
-  // レーダーチャート
   if(chart) chart.destroy();
   chart=new Chart(document.getElementById('chart'),{
     type:'radar',
-    data:{labels:['翻訳者','触媒','編集P','実装D','アイデア'],
-      datasets:[{label:'スコア',data:[points.translator,points.catalyst,points.editor,points.director,points.ideator]}]},
-    options:{scales:{r:{suggestedMin:0,suggestedMax:10,ticks:{display:false}}},
-             plugins:{legend:{display:false}}}
+    data:{labels:['翻訳者','触媒','編集P','実装D','アイデア'], datasets:[{label:'スコア',data:[points.translator,points.catalyst,points.editor,points.director,points.ideator]}]},
+    options:{scales:{r:{suggestedMin:0,suggestedMax:10,ticks:{display:false}}},plugins:{legend:{display:false}}}
   });
 
-  // 画像切替
   const hero=document.getElementById('hero'), heroImg=document.getElementById('heroImg');
   if (SHOW_IMAGE) {
-    const file = TYPE_IMAGES[winner.key];
-    heroImg.src = file ? `${IMAGE_BASE}/${file}` : FALLBACK_DATA_URL;
-    heroImg.alt = `${winner.name}のイメージ`;
-    heroImg.onerror = ()=>{ heroImg.src = FALLBACK_DATA_URL; };
-    hero.style.display = 'flex';
-  } else { hero.style.display = 'none'; }
+    const file=TYPE_IMAGES[winner.key]; heroImg.src=file?`${IMAGE_BASE}/${file}`:FALLBACK_DATA_URL; heroImg.alt=`${winner.name}のイメージ`;
+    heroImg.onerror=()=>{ heroImg.src=FALLBACK_DATA_URL }; hero.style.display='flex';
+  } else { hero.style.display='none'; }
 
-  // シェア更新
   setShareLinks(winner.name);
 
-  // 匿名保存（同意がある場合のみ）
-  const statusEl = document.getElementById('saveStatus');
-  statusEl.textContent = '';
-  const consent = document.getElementById('consent')?.checked;
-  if (consent) {
-    statusEl.textContent = '匿名送信中…';
+  const statusEl=document.getElementById('saveStatus'); statusEl.textContent='';
+  if (document.getElementById('consent')?.checked) {
+    statusEl.textContent='匿名送信中…';
     try{
-      const ok = await saveAnon({ type: winner.name, points });
-      statusEl.textContent = ok
-        ? '匿名集計にご協力ありがとうございます（保存完了）'
-        : '匿名送信に失敗しました。URL/ネット環境をご確認ください';
+      const ok = await saveAnon({ type:winner.name, points });
+      console.log('saveAnon returned:', ok);
+      statusEl.textContent = ok ? '匿名集計にご協力ありがとうございます（保存完了）' :
+                                  '匿名送信に失敗しました。URL/ネット環境をご確認ください';
     }catch(err){
       console.error('saveAnon error', err);
-      statusEl.textContent = '匿名送信でエラーが発生しました';
+      statusEl.textContent='匿名送信でエラーが発生しました';
     }
+  } else {
+    console.log('consent not checked — skip send');
   }
 
-  // スクロール
   window.scrollTo({top:card.offsetTop-8, behavior:'smooth'});
 }
 
-/* ============ 保存/シェア ============ */
-async function saveAsImage(){
-  const el = document.getElementById('resultCard');
-  const canvas = await html2canvas(el, {backgroundColor:'#ffffff', scale:2});
-  const a = document.createElement('a');
-  a.href = canvas.toDataURL('image/png');
-  a.download = 'type-result.png';
-  a.click();
-}
-async function saveAsPdf(){
-  const el = document.getElementById('resultCard');
-  const canvas = await html2canvas(el, {backgroundColor:'#ffffff', scale:2});
-  const imgData = canvas.toDataURL('image/png');
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({orientation:'p', unit:'pt', format:'a4'});
-  const w = 540, h = canvas.height*(w/canvas.width);
-  pdf.setFillColor(255,255,255); pdf.rect(0,0,595,842,'F');
-  pdf.addImage(imgData,'PNG',28,40,w,h);
-  pdf.save('type-result.pdf');
-}
-function setShareLinks(typeName){
-  const site = SITE_URL || (location.origin + location.pathname);
-  const text = `私は「器用貧乏の型診断」で ${typeName} でした。#器用貧乏の型診断\n${site}`;
-  document.getElementById('copy').onclick = async ()=>{
-    await navigator.clipboard.writeText(text); alert('コピーしました');
-  };
-  document.getElementById('xshare').href  =
-    `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-  document.getElementById('lnshare').href =
-    `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(site)}`;
-}
+/* ===== 保存/シェア ===== */
+async function saveAsImage(){ const el=document.getElementById('resultCard'); const canvas=await html2canvas(el,{backgroundColor:'#ffffff',scale:2}); const a=document.createElement('a'); a.href=canvas.toDataURL('image/png'); a.download='type-result.png'; a.click(); }
+async function saveAsPdf(){ const el=document.getElementById('resultCard'); const canvas=await html2canvas(el,{backgroundColor:'#ffffff',scale:2}); const img=canvas.toDataURL('image/png'); const {jsPDF}=window.jspdf; const pdf=new jsPDF({orientation:'p',unit:'pt',format:'a4'}); const w=540,h=canvas.height*(w/canvas.width); pdf.setFillColor(255,255,255); pdf.rect(0,0,595,842,'F'); pdf.addImage(img,'PNG',28,40,w,h); pdf.save('type-result.pdf'); }
+function setShareLinks(typeName){ const site=SITE_URL||(location.origin+location.pathname); const text=`私は「器用貧乏の型診断」で ${typeName} でした。#器用貧乏の型診断\n${site}`; document.getElementById('copy').onclick=async()=>{ await navigator.clipboard.writeText(text); alert('コピーしました'); }; document.getElementById('xshare').href=`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`; document.getElementById('lnshare').href=`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(site)}`; }
 
-/* ============ 匿名保存（プリフライト回避＋成否返却） ============ */
+/* ===== 匿名保存（成否返却） ===== */
 async function saveAnon(payload){
   if(!SAVE_ENDPOINT) return false;
   try{
     const res = await fetch(SAVE_ENDPOINT, {
       method:'POST',
-      headers:{ 'Content-Type': 'text/plain;charset=utf-8' }, // ←text/plainでプリフライト回避
-      body: JSON.stringify({
-        type: payload.type,
-        points: payload.points,
-        ua: navigator.userAgent,
-        note: 'webapp-v1'
-      })
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body: JSON.stringify({ type:payload.type, points:payload.points, ua:navigator.userAgent, note:'webapp-v1' })
     });
-    if (!res.ok) return false;
+    if(!res.ok) return false;
     const j = await res.json().catch(()=> ({}));
     return j.ok === true || res.ok;
-  }catch(e){
-    console.log('save skipped', e);
-    return false;
-  }
+  }catch(e){ console.log('save skipped', e); return false; }
 }
 
-/* ============ イベント接続 ============ */
-document.getElementById('calc').addEventListener('click', calcAndRender);
-document.getElementById('reset').addEventListener('click', ()=>{
-  document.querySelectorAll('input[type=radio]').forEach(n=>n.checked=false);
-  document.getElementById('resultCard').style.display='none';
-  if(chart) chart.destroy();
-});
-document.getElementById('saveImg').addEventListener('click', saveAsImage);
-document.getElementById('savePdf').addEventListener('click', saveAsPdf);
+/* ===== デバッグ補助 ===== */
+async function testPing(){
+  try{
+    const r = await fetch(SAVE_ENDPOINT, { method:'GET' });
+    const t = await r.text();
+    alert('GET /exec 応答: ' + t.slice(0,100));
+  }catch(e){ alert('GET 失敗: ' + e); }
+}
+async function testSend(){
+  try{
+    const ok = await saveAnon({ type:'テスト送信', points:{translator:1,catalyst:2,editor:3,director:4,ideator:5} });
+    alert('POST /exec: ' + (ok?'成功':'失敗'));
+  }catch(e){ alert('POST 例外: ' + e); }
+}
+
+/* ===== 予備のイベント接続（冗長だが安全） ===== */
+document.getElementById('calc')?.addEventListener('click', calcAndRender);
+document.getElementById('reset')?.addEventListener('click', ()=>{ document.querySelectorAll('input[type=radio]').forEach(n=>n.checked=false); document.getElementById('resultCard').style.display='none'; if(chart) chart.destroy(); });
+document.getElementById('saveImg')?.addEventListener('click', saveAsImage);
+document.getElementById('savePdf')?.addEventListener('click', saveAsPdf);
 </script>
 </body>
 </html>
