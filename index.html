@@ -61,6 +61,15 @@
   canvas{background:#ffffff;border-radius:12px;padding:12px;border:1px solid var(--line)}
   @media (max-width:840px){ .row{grid-template-columns:1fr} }
   a.pill{ text-decoration:none }
+  /* 判定タイトルを大きく中央に */
+.winner-big {
+  text-align: center;
+  font-size: 32px !important;
+  font-weight: 900;
+  margin: 16px 0;
+  line-height: 1.4;
+}
+
 </style>
 </head>
 <body>
@@ -206,15 +215,54 @@ function calcAndRender(){
   const points={translator:0,catalyst:0,editor:0,director:0,ideator:0};
   for(const q of QUESTIONS){
     const v=document.querySelector(`input[name=${q.id}]:checked`);
-    if(!v){alert('全て回答してください');return;}
+    if(!v){ alert('全て回答してください'); return; }
     points[q.type]+=Number(v.value);
   }
+
   // 勝者（同点は order 優先）
   const sorted=TYPES.map(t=>({key:t.key,name:t.name,score:points[t.key],order:t.order}))
-    .sort((a,b)=> b.score===a.score? a.order-b.order : b.score-a.score);
+    .sort((a,b)=> b.score===a.score ? a.order-b.order : b.score-a.score);
   const winner=sorted[0];
   const tie = sorted.filter(s=>s.score===winner.score).length>1;
   const fb=FEEDBACK[winner.key];
+
+  // ===== ここが“判定タイトルの表示”部分（中央＆大きく）=====
+  document.getElementById('resultCard').style.display='block';
+  const wEl = document.getElementById('winner');
+  wEl.textContent = `あなたは「${winner.name}」です`;
+  wEl.classList.add('winner-big');  // ← これで中央＆大きめに
+
+  // サマリー・テキスト群
+  document.getElementById('summary').textContent =
+    `翻訳者${points.translator}／触媒${points.catalyst}／編集${points.editor}／実装${points.director}／アイデア${points.ideator}`;
+  document.getElementById('tieNote').style.display = tie ? 'inline-block' : 'none';
+  document.getElementById('strength').textContent = fb.strength;
+  document.getElementById('pain').textContent     = fb.pain;
+  document.getElementById('evolve').textContent   = fb.evolve;
+
+  // アクション
+  const ol=document.getElementById('actions'); ol.innerHTML='';
+  fb.actions.forEach(a=>{ const li=document.createElement('li'); li.textContent=a; ol.appendChild(li); });
+
+  // レーダーチャート
+  if(chart) chart.destroy();
+  chart = new Chart(document.getElementById('chart'),{
+    type:'radar',
+    data:{
+      labels:['翻訳者','触媒','編集P','実装D','アイデア'],
+      datasets:[{label:'スコア', data:[
+        points.translator, points.catalyst, points.editor, points.director, points.ideator
+      ]}]
+    },
+    options:{ scales:{ r:{ suggestedMin:0, suggestedMax:10, ticks:{display:false}}}, plugins:{legend:{display:false}} }
+  });
+
+  // シェアのリンク更新（テキストコピー / X / LinkedIn）
+  setShareLinks(winner.name);
+
+  // 結果へスクロール
+  window.scrollTo({ top: document.getElementById('resultCard').offsetTop - 8, behavior:'smooth' });
+}
 
   // 表示
   document.getElementById('resultCard').style.display='block';
