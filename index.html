@@ -69,6 +69,24 @@
   margin: 16px 0;
   line-height: 1.4;
 }
+/* 判定の見出しを中央に大きく表示 */
+.winner-section{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  margin:24px 0;
+}
+.winner-big{
+  font-size:36px !important;
+  font-weight:900;
+  line-height:1.4;
+  margin-top:12px;
+}
+@media (max-width: 480px){
+  .winner-big{ font-size:30px !important; }
+}
 
 </style>
 </head>
@@ -91,12 +109,16 @@
   <div id="resultCard" class="card" style="margin-top:16px;display:none">
     <div class="row">
       <div>
-        <h2>あなたの型（判定）</h2>
-        <div id="winner" style="font-size:20px;font-weight:800;margin-bottom:6px"></div>
-        <div id="summary" class="muted"></div>
-        <div style="margin-top:8px"><span id="tieNote" class="pill" style="display:none">同点は優先順で判定</span></div>
-      </div>
-      <div>
+  <h2>あなたの型（判定）</h2>
+  <div class="winner-section">
+    <div id="winner" class="winner-big"></div>
+    <div id="summary" class="muted" style="margin-top:8px"></div>
+    <div id="tieWrap" style="margin-top:8px">
+      <span id="tieNote" class="pill" style="display:none">同点は優先順で判定</span>
+    </div>
+  </div>
+</div>
+
         <h2>タイプ別スコア</h2>
         <canvas id="chart" height="200" aria-label="タイプ別スコアのレーダーチャート"></canvas>
       </div>
