@@ -9,25 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#ffffff;
-    --panel:#f9fafb;
-    --ink:#111827;            /* Gray-900 */
-    --muted:#6b7280;          /* Gray-500 */
-    --line:#e5e7eb;           /* Gray-200 */
-    --hi:#2563eb;             /* Blue-600 */
-    --ok:#16a34a;             /* Green-600 */
+    --bg:#ffffff;    /* 全体背景 */
+    --panel:#f9fafb; /* カード・パネル背景 */
+    --ink:#1f2937;   /* メインテキスト */
+    --muted:#6b7280; /* ミュートテキスト */
+    --line:#e5e7eb;  /* 境界線 */
+    --hi:#2563eb;    /* ハイライト（青） */
+    --ok:#10b981;    /* 成功（緑） */
   }
   *{box-sizing:border-box}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-    line-height:1.6;
-  }
-  .wrap{max-width:960px;margin:40px auto;padding:0 16px}
-  .card{
-    background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:22px;
-    box-shadow:0 8px 20px rgba(0,0,0,.06)
-  }
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;line-height:1.6}
+  .wrap{max-width:960px;margin:36px auto;padding:0 16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;
+        box-shadow:0 6px 15px rgba(0,0,0,.08)}
   h1{margin:0 0 6px;font-size:28px;font-weight:800}
   .lead{color:var(--muted);margin:0 0 18px}
   h2{margin:16px 0 8px;font-size:18px}
@@ -229,7 +224,45 @@ document.getElementById('reset').onclick=()=>{
   document.getElementById('resultCard').style.display='none';
   if(chart)chart.destroy();
 };
+  <script>
+// ===== 追加：保存・シェア用ユーティリティ =====
+async function saveAsImage(){
+  const el = document.getElementById('resultCard');
+  const canvas = await html2canvas(el, {backgroundColor:'#ffffff', scale:2});
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = 'type-result.png';
+  a.click();
+}
+async function saveAsPdf(){
+  const el = document.getElementById('resultCard');
+  const canvas = await html2canvas(el, {backgroundColor:'#ffffff', scale:2});
+  const imgData = canvas.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({orientation:'p', unit:'pt', format:'a4'});
+  const w = 540, h = canvas.height*(w/canvas.width);
+  pdf.setFillColor(255,255,255); pdf.rect(0,0,595,842,'F');
+  pdf.addImage(imgData,'PNG',28,40,w,h);
+  pdf.save('type-result.pdf');
+}
+function setShareLinks(typeName){
+  const site = (typeof SITE_URL==='string' && SITE_URL) ? SITE_URL : (location.origin + location.pathname);
+  const text = `私は「器用貧乏の型診断」で ${typeName} でした。#器用貧乏の型診断\n${site}`;
+  const copyBtn = document.getElementById('copy');
+  if(copyBtn){
+    copyBtn.onclick = async ()=>{ await navigator.clipboard.writeText(text); alert('コピーしました'); };
+  }
+  const x = document.getElementById('xshare');
+  const ln = document.getElementById('lnshare');
+  if(x)  x.href  = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  if(ln) ln.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(site)}`;
+}
+// ===== 既存のcalc後に追記：ボタンにイベントを接続 =====
+document.getElementById('saveImg')?.addEventListener('click', saveAsImage);
+document.getElementById('savePdf')?.addEventListener('click', saveAsPdf);
 </script>
+
 </body>
 </html>
+
 
