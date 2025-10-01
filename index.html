@@ -11,10 +11,10 @@
   :root{
     --bg:#ffffff;
     --panel:#f9fafb;
-    --ink:#111827;            /* Gray-900 */
-    --muted:#6b7280;          /* Gray-500 */
-    --line:#e5e7eb;           /* Gray-200 */
-    --hi:#2563eb;             /* Blue-600 */
+    --ink:#111827;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --hi:#2563eb;
   }
   *{box-sizing:border-box}
   body{
@@ -73,7 +73,7 @@
 
   .hero { margin-top:12px; display:none; justify-content:center }
   .hero img{
-    width:280px; height:280px; object-fit:contain;   /* ここで大きさ調整 */
+    width:280px; height:280px; object-fit:contain;
     border:1px solid var(--line); border-radius:14px; background:#fff;
     box-shadow:0 6px 14px rgba(0,0,0,.06);
   }
@@ -161,8 +161,8 @@
 
 <script>
 /* ============ 設定 ============ */
-const SITE_URL = ''; // 例: 'https://kanbeylab.github.io/Rich-in-Versatility/'
-const SAVE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzd-pQjhPu2oAIpAi_-mqKM8C7gzza6yHSw-gycjXw4FX0PKB1zigdlr6P0o1tad3Qj/exec'; // ←GAS /exec
+const SITE_URL = '';
+const SAVE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxmhnR0AFQO8nLjcKwMPVKaKfacHHIlvfR31c03Nj-6D0-tiOhPk6FZfOevchRabXfb/exec'; // 新URL
 
 const TYPES = [
   { key:'translator', name:'翻訳者型', order:1 },
@@ -185,9 +185,9 @@ const QUESTIONS = [
   { id:'q10', text:'アイデアをよく書き留めるが、形にならないまま溜まりがちだ',     type:'ideator' },
 ];
 
-/* 画像設定 */
-const SHOW_IMAGE = true;           // 画像ON/OFF
-const IMAGE_BASE = 'assets';       // 画像フォルダ
+/* 画像設定（任意） */
+const SHOW_IMAGE = true;
+const IMAGE_BASE = 'assets';
 const TYPE_IMAGES = {
   translator: 'translator.png',
   catalyst:   'catalyst.png',
@@ -195,7 +195,6 @@ const TYPE_IMAGES = {
   director:   'director.png',
   ideator:    'ideator.png'
 };
-// プレースホルダー（未設置でも崩れない）
 const FALLBACK_DATA_URL =
   'data:image/svg+xml;utf8,' +
   encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280">
@@ -353,16 +352,17 @@ function setShareLinks(typeName){
     `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(site)}`;
 }
 
-/* ============ 匿名保存 ============ */
+/* ============ 匿名保存（プリフライト回避版） ============ */
 async function saveAnon(payload){
-  if(!SAVE_ENDPOINT) return; // 未設定なら何もしない
+  if(!SAVE_ENDPOINT) return;
   try{
+    // CORS安定化のため text/plain で送信（中身はJSON文字列）
     await fetch(SAVE_ENDPOINT, {
       method:'POST',
-      headers:{ 'Content-Type':'application/json' },
+      headers:{ 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
-        type: payload.type,     // 判定型名
-        points: payload.points, // スコア
+        type: payload.type,
+        points: payload.points,
         ua: navigator.userAgent,
         note: 'webapp-v1'
       })
