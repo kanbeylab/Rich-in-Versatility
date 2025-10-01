@@ -61,33 +61,40 @@
   canvas{background:#ffffff;border-radius:12px;padding:12px;border:1px solid var(--line)}
   @media (max-width:840px){ .row{grid-template-columns:1fr} }
   a.pill{ text-decoration:none }
-  /* 判定タイトルを大きく中央に */
-.winner-big {
-  text-align: center;
-  font-size: 32px !important;
-  font-weight: 900;
-  margin: 16px 0;
-  line-height: 1.4;
-}
-/* 判定の見出しを中央に大きく表示 */
-.winner-section{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  margin:24px 0;
-}
-.winner-big{
-  font-size:36px !important;
-  font-weight:900;
-  line-height:1.4;
-  margin-top:12px;
-}
-@media (max-width: 480px){
-  .winner-big{ font-size:30px !important; }
-}
 
+  /* 判定をテキストフォルダー（枠）で中央＆大きく */
+  .winner-folder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border: 3px solid #2563eb;
+    border-radius: 18px;
+    min-height: 120px;
+    margin: 0 auto 20px auto;
+    max-width: 420px;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.07);
+    padding: 24px 12px;
+  }
+  .winner-big {
+    font-size: 36px !important;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.4;
+    margin: 0;
+  }
+  .winner-section{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    margin:24px 0;
+  }
+  @media (max-width: 480px){
+    .winner-folder { min-height: 80px; padding: 18px 6px; }
+    .winner-big { font-size: 26px !important; }
+  }
 </style>
 </head>
 <body>
@@ -109,16 +116,16 @@
   <div id="resultCard" class="card" style="margin-top:16px;display:none">
     <div class="row">
       <div>
-  <h2>あなたの型（判定）</h2>
-  <div class="winner-section">
-    <div id="winner" class="winner-big"></div>
-    <div id="summary" class="muted" style="margin-top:8px"></div>
-    <div id="tieWrap" style="margin-top:8px">
-      <span id="tieNote" class="pill" style="display:none">同点は優先順で判定</span>
-    </div>
-  </div>
-</div>
-
+        <h2>あなたの型（判定）</h2>
+        <div class="winner-section">
+          <div id="winnerFolder" class="winner-folder">
+            <div id="winner" class="winner-big"></div>
+          </div>
+          <div id="summary" class="muted" style="margin-top:8px"></div>
+          <div id="tieWrap" style="margin-top:8px">
+            <span id="tieNote" class="pill" style="display:none">同点は優先順で判定</span>
+          </div>
+        </div>
         <h2>タイプ別スコア</h2>
         <canvas id="chart" height="200" aria-label="タイプ別スコアのレーダーチャート"></canvas>
       </div>
@@ -205,7 +212,7 @@ const FEEDBACK = {
   },
   director: {
     strength:'段取り・推進力に優れる。',
-    pain:'裏方で消耗しやすい。',
+    pain:'裏方で消耗しやい。',
     evolve:'B2B伴走やライセンス展開で価値を資産化可能。',
     actions:['案件の流れを1枚化','週次チェックリスト化','提案書テンプレを作成']
   },
@@ -248,11 +255,10 @@ function calcAndRender(){
   const tie = sorted.filter(s=>s.score===winner.score).length>1;
   const fb=FEEDBACK[winner.key];
 
-  // ===== ここが“判定タイトルの表示”部分（中央＆大きく）=====
+  // 判定タイトルを「テキストフォルダー」の中央＆大きく表示
   document.getElementById('resultCard').style.display='block';
   const wEl = document.getElementById('winner');
   wEl.textContent = `あなたは「${winner.name}」です`;
-  wEl.classList.add('winner-big');  // ← これで中央＆大きめに
 
   // サマリー・テキスト群
   document.getElementById('summary').textContent =
@@ -284,34 +290,6 @@ function calcAndRender(){
 
   // 結果へスクロール
   window.scrollTo({ top: document.getElementById('resultCard').offsetTop - 8, behavior:'smooth' });
-}
-
-  // 表示
-  document.getElementById('resultCard').style.display='block';
-  document.getElementById('winner').textContent=`あなたは「${winner.name}」です`;
-  document.getElementById('summary').textContent=
-    `翻訳者${points.translator}／触媒${points.catalyst}／編集${points.editor}／実装${points.director}／アイデア${points.ideator}`;
-  document.getElementById('tieNote').style.display = tie ? 'inline-block' : 'none';
-  document.getElementById('strength').textContent=fb.strength;
-  document.getElementById('pain').textContent=fb.pain;
-  document.getElementById('evolve').textContent=fb.evolve;
-  const ol=document.getElementById('actions'); ol.innerHTML='';
-  fb.actions.forEach(a=>{const li=document.createElement('li'); li.textContent=a; ol.appendChild(li)});
-
-  // グラフ描画
-  if(chart) chart.destroy();
-  chart=new Chart(document.getElementById('chart'),{
-    type:'radar',
-    data:{labels:['翻訳者','触媒','編集P','実装D','アイデア'],
-      datasets:[{label:'スコア',data:[points.translator,points.catalyst,points.editor,points.director,points.ideator]}]},
-    options:{scales:{r:{suggestedMin:0,suggestedMax:10,ticks:{display:false}}},plugins:{legend:{display:false}}}
-  });
-
-  // シェアリンク接続
-  setShareLinks(winner.name);
-
-  // 結果へスクロール
-  window.scrollTo({top:document.getElementById('resultCard').offsetTop-8, behavior:'smooth'});
 }
 
 // 保存＆シェア機能
@@ -346,14 +324,14 @@ function setShareLinks(typeName){
 }
 
 // イベント接続
- document.getElementById('calc').addEventListener('click', calcAndRender);
- document.getElementById('reset').addEventListener('click', ()=>{
+document.getElementById('calc').addEventListener('click', calcAndRender);
+document.getElementById('reset').addEventListener('click', ()=>{
   document.querySelectorAll('input[type=radio]').forEach(n=>n.checked=false);
   document.getElementById('resultCard').style.display='none';
   if(chart) chart.destroy();
- });
- document.getElementById('saveImg').addEventListener('click', saveAsImage);
- document.getElementById('savePdf').addEventListener('click', saveAsPdf);
+});
+document.getElementById('saveImg').addEventListener('click', saveAsImage);
+document.getElementById('savePdf').addEventListener('click', saveAsPdf);
 </script>
 </body>
 </html>
