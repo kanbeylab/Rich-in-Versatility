@@ -61,25 +61,20 @@
   @media (max-width:840px){ .row{grid-template-columns:1fr} }
   a.pill{ text-decoration:none }
 
-  /* 中央どーん＋画像 */
+  /* 中央表示＋画像 */
   .winner-section{
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; margin:24px 0;
   }
-  .winner-big{
-    font-size:36px; font-weight:900; line-height:1.4; margin-top:12px;
-  }
+  .winner-big{ font-size:36px; font-weight:900; line-height:1.4; margin-top:12px; }
   @media (max-width:480px){ .winner-big{ font-size:30px; } }
-
   .hero { margin-top:12px; display:none; justify-content:center }
   .hero img{
     width:280px; height:280px; object-fit:contain;
     border:1px solid var(--line); border-radius:14px; background:#fff;
     box-shadow:0 6px 14px rgba(0,0,0,.06);
   }
-  @media (max-width:480px){
-    .hero img{ width:200px; height:200px; }
-  }
+  @media (max-width:480px){ .hero img{ width:200px; height:200px; } }
 </style>
 </head>
 <body>
@@ -104,7 +99,7 @@
 
   <div id="resultCard" class="card" style="margin-top:16px;display:none">
     <div class="row">
-      <!-- 左カラム：判定（中央どーん＋画像） -->
+      <!-- 左：判定 -->
       <div>
         <h2>あなたの型（判定）</h2>
         <div class="winner-section">
@@ -118,7 +113,7 @@
           </div>
         </div>
       </div>
-      <!-- 右カラム：レーダーチャート -->
+      <!-- 右：レーダーチャート -->
       <div>
         <h2>タイプ別スコア</h2>
         <canvas id="chart" height="200" aria-label="タイプ別スコアのレーダーチャート"></canvas>
@@ -150,6 +145,8 @@
         <a id="lnshare" class="pill" target="_blank" rel="noopener">LinkedInでシェア</a>
       </div>
       <p class="muted" style="margin-top:6px">#器用貧乏の型診断</p>
+      <!-- 送信ステータス -->
+      <p id="saveStatus" class="muted" style="margin-top:6px;"></p>
     </div>
   </div>
 </div>
@@ -162,7 +159,8 @@
 <script>
 /* ============ 設定 ============ */
 const SITE_URL = '';
-const SAVE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwSc5kZZFv5AI-HSZXk2p4r_M23dd51MZDMK6yAIpKfksN-x_QQpJDKitFRkxG0444B/exec'; // 新URL
+// あなたの /exec（公開済み・全員）エンドポイント
+const SAVE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwSc5kZZFv5AI-HSZXk2p4r_M23dd51MZDMK6yAIpKfksN-x_QQpJDKitFRkxG0444B/exec';
 
 const TYPES = [
   { key:'translator', name:'翻訳者型', order:1 },
@@ -185,7 +183,7 @@ const QUESTIONS = [
   { id:'q10', text:'アイデアをよく書き留めるが、形にならないまま溜まりがちだ',     type:'ideator' },
 ];
 
-/* 画像設定（任意） */
+/* 画像（任意） */
 const SHOW_IMAGE = true;
 const IMAGE_BASE = 'assets';
 const TYPE_IMAGES = {
@@ -253,7 +251,7 @@ QUESTIONS.forEach((q,i)=>{
 /* ============ 診断/表示 ============ */
 let chart;
 
-function calcAndRender(){
+async function calcAndRender(){
   // 集計
   const points={translator:0,catalyst:0,editor:0,director:0,ideator:0};
   for(const q of QUESTIONS){
@@ -268,9 +266,8 @@ function calcAndRender(){
   const tie = sorted.filter(s=>s.score===winner.score).length>1;
   const fb=FEEDBACK[winner.key];
 
-  // 表示（中央どーん＋画像）
-  const card = document.getElementById('resultCard');
-  card.style.display='block';
+  // 表示
+  const card = document.getElementById('resultCard'); card.style.display='block';
   const wEl = document.getElementById('winner');
   wEl.textContent = `あなたは「${winner.name}」です`;
   wEl.classList.add('winner-big');
@@ -296,24 +293,33 @@ function calcAndRender(){
   });
 
   // 画像切替
-  const hero    = document.getElementById('hero');
-  const heroImg = document.getElementById('heroImg');
+  const hero=document.getElementById('hero'), heroImg=document.getElementById('heroImg');
   if (SHOW_IMAGE) {
     const file = TYPE_IMAGES[winner.key];
     heroImg.src = file ? `${IMAGE_BASE}/${file}` : FALLBACK_DATA_URL;
     heroImg.alt = `${winner.name}のイメージ`;
     heroImg.onerror = ()=>{ heroImg.src = FALLBACK_DATA_URL; };
     hero.style.display = 'flex';
-  } else {
-    hero.style.display = 'none';
-  }
+  } else { hero.style.display = 'none'; }
 
   // シェア更新
   setShareLinks(winner.name);
 
-  // 匿名保存（同意時のみ）
-  if (document.getElementById('consent')?.checked) {
-    saveAnon({ type: winner.name, points });
+  // 匿名保存（同意がある場合のみ）
+  const statusEl = document.getElementById('saveStatus');
+  statusEl.textContent = '';
+  const consent = document.getElementById('consent')?.checked;
+  if (consent) {
+    statusEl.textContent = '匿名送信中…';
+    try{
+      const ok = await saveAnon({ type: winner.name, points });
+      statusEl.textContent = ok
+        ? '匿名集計にご協力ありがとうございます（保存完了）'
+        : '匿名送信に失敗しました。URL/ネット環境をご確認ください';
+    }catch(err){
+      console.error('saveAnon error', err);
+      statusEl.textContent = '匿名送信でエラーが発生しました';
+    }
   }
 
   // スクロール
@@ -352,14 +358,13 @@ function setShareLinks(typeName){
     `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(site)}`;
 }
 
-/* ============ 匿名保存（プリフライト回避版） ============ */
+/* ============ 匿名保存（プリフライト回避＋成否返却） ============ */
 async function saveAnon(payload){
-  if(!SAVE_ENDPOINT) return;
+  if(!SAVE_ENDPOINT) return false;
   try{
-    // CORS安定化のため text/plain で送信（中身はJSON文字列）
-    await fetch(SAVE_ENDPOINT, {
+    const res = await fetch(SAVE_ENDPOINT, {
       method:'POST',
-      headers:{ 'Content-Type': 'text/plain;charset=utf-8' },
+      headers:{ 'Content-Type': 'text/plain;charset=utf-8' }, // ←text/plainでプリフライト回避
       body: JSON.stringify({
         type: payload.type,
         points: payload.points,
@@ -367,8 +372,12 @@ async function saveAnon(payload){
         note: 'webapp-v1'
       })
     });
+    if (!res.ok) return false;
+    const j = await res.json().catch(()=> ({}));
+    return j.ok === true || res.ok;
   }catch(e){
     console.log('save skipped', e);
+    return false;
   }
 }
 
