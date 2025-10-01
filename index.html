@@ -15,7 +15,6 @@
     --muted:#6b7280;          /* Gray-500 */
     --line:#e5e7eb;           /* Gray-200 */
     --hi:#2563eb;             /* Blue-600 */
-    --ok:#16a34a;             /* Green-600 */
   }
   *{box-sizing:border-box}
   body{
@@ -61,15 +60,16 @@
   canvas{background:#ffffff;border-radius:12px;padding:12px;border:1px solid var(--line)}
   @media (max-width:840px){ .row{grid-template-columns:1fr} }
   a.pill{ text-decoration:none }
-  /* 判定タイトルを大きく中央に */
-.winner-big {
-  text-align: center;
-  font-size: 32px !important;
-  font-weight: 900;
-  margin: 16px 0;
-  line-height: 1.4;
-}
 
+  /* 判定の見出しを中央に大きく表示 */
+  .winner-section{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; margin:24px 0;
+  }
+  .winner-big{
+    font-size:36px; font-weight:900; line-height:1.4; margin-top:12px;
+  }
+  @media (max-width:480px){ .winner-big{ font-size:30px; } }
 </style>
 </head>
 <body>
@@ -77,9 +77,6 @@
   <div class="card">
     <h1>器用貧乏の型診断</h1>
     <p class="lead">10問・5段階の自己評価で、あなたの“器用貧乏の型”を判定します。翻訳者／触媒／編集プロデューサー／実装ディレクター／アイデアメーカーの5タイプ。</p>
-
-    <!-- 任意：サイトURL（X/LinkedInシェア用に使用）。空なら現在URLを自動使用 -->
-    <!-- const SITE_URL = 'https://yourname.github.io/Rich-in-Versatility/'; -->
 
     <form id="form"></form>
     <div class="btns">
@@ -90,12 +87,18 @@
 
   <div id="resultCard" class="card" style="margin-top:16px;display:none">
     <div class="row">
+      <!-- 左カラム：判定（中央どーん表示） -->
       <div>
         <h2>あなたの型（判定）</h2>
-        <div id="winner" style="font-size:20px;font-weight:800;margin-bottom:6px"></div>
-        <div id="summary" class="muted"></div>
-        <div style="margin-top:8px"><span id="tieNote" class="pill" style="display:none">同点は優先順で判定</span></div>
+        <div class="winner-section">
+          <div id="winner" class="winner-big"></div>
+          <div id="summary" class="muted" style="margin-top:8px"></div>
+          <div id="tieWrap" style="margin-top:8px">
+            <span id="tieNote" class="pill" style="display:none">同点は優先順で判定</span>
+          </div>
+        </div>
       </div>
+      <!-- 右カラム：レーダーチャート -->
       <div>
         <h2>タイプ別スコア</h2>
         <canvas id="chart" height="200" aria-label="タイプ別スコアのレーダーチャート"></canvas>
@@ -137,10 +140,8 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <script>
-/* =========================
-   設定
-   ========================= */
-const SITE_URL = '';
+/* ============ 設定 ============ */
+const SITE_URL = ''; // 例: 'https://kanbeylab.github.io/Rich-in-Versatility/'
 const TYPES = [
   { key:'translator', name:'翻訳者型', order:1 },
   { key:'catalyst',   name:'触媒型', order:2 },
@@ -195,7 +196,7 @@ const FEEDBACK = {
   }
 };
 
-/* 設問描画 */
+/* ============ 設問描画 ============ */
 const form = document.getElementById('form');
 QUESTIONS.forEach((q,i)=>{
   const div=document.createElement('div');div.className='q';
@@ -208,52 +209,59 @@ QUESTIONS.forEach((q,i)=>{
   form.appendChild(div);
 });
 
-let chart; // レーダーチャート用
+/* ============ 診断/表示 ============ */
+let chart;
 
 function calcAndRender(){
-  // スコア集計
+  // 集計
   const points={translator:0,catalyst:0,editor:0,director:0,ideator:0};
   for(const q of QUESTIONS){
     const v=document.querySelector(`input[name=${q.id}]:checked`);
-    if(!v){alert('全て回答してください');return;}
+    if(!v){ alert('全て回答してください'); return; }
     points[q.type]+=Number(v.value);
   }
   // 勝者（同点は order 優先）
   const sorted=TYPES.map(t=>({key:t.key,name:t.name,score:points[t.key],order:t.order}))
-    .sort((a,b)=> b.score===a.score? a.order-b.order : b.score-a.score);
+    .sort((a,b)=> b.score===a.score ? a.order-b.order : b.score-a.score);
   const winner=sorted[0];
   const tie = sorted.filter(s=>s.score===winner.score).length>1;
   const fb=FEEDBACK[winner.key];
 
-  // 表示
-  document.getElementById('resultCard').style.display='block';
-  document.getElementById('winner').textContent=`あなたは「${winner.name}」です`;
+  // 表示（中央どーん）
+  const card = document.getElementById('resultCard');
+  card.style.display='block';
+  const wEl = document.getElementById('winner');
+  wEl.textContent = `あなたは「${winner.name}」です`;
+  wEl.classList.add('winner-big');
+
   document.getElementById('summary').textContent=
     `翻訳者${points.translator}／触媒${points.catalyst}／編集${points.editor}／実装${points.director}／アイデア${points.ideator}`;
   document.getElementById('tieNote').style.display = tie ? 'inline-block' : 'none';
   document.getElementById('strength').textContent=fb.strength;
   document.getElementById('pain').textContent=fb.pain;
   document.getElementById('evolve').textContent=fb.evolve;
-  const ol=document.getElementById('actions'); ol.innerHTML='';
-  fb.actions.forEach(a=>{const li=document.createElement('li'); li.textContent=a; ol.appendChild(li)});
 
-  // グラフ描画
+  const ol=document.getElementById('actions'); ol.innerHTML='';
+  fb.actions.forEach(a=>{ const li=document.createElement('li'); li.textContent=a; ol.appendChild(li); });
+
+  // レーダーチャート
   if(chart) chart.destroy();
   chart=new Chart(document.getElementById('chart'),{
     type:'radar',
     data:{labels:['翻訳者','触媒','編集P','実装D','アイデア'],
       datasets:[{label:'スコア',data:[points.translator,points.catalyst,points.editor,points.director,points.ideator]}]},
-    options:{scales:{r:{suggestedMin:0,suggestedMax:10,ticks:{display:false}}},plugins:{legend:{display:false}}}
+    options:{scales:{r:{suggestedMin:0,suggestedMax:10,ticks:{display:false}}},
+             plugins:{legend:{display:false}}}
   });
 
-  // シェアリンク接続
+  // シェア更新
   setShareLinks(winner.name);
 
-  // 結果へスクロール
-  window.scrollTo({top:document.getElementById('resultCard').offsetTop-8, behavior:'smooth'});
+  // スクロール
+  window.scrollTo({top:card.offsetTop-8, behavior:'smooth'});
 }
 
-// 保存＆シェア機能
+/* ============ 保存/シェア ============ */
 async function saveAsImage(){
   const el = document.getElementById('resultCard');
   const canvas = await html2canvas(el, {backgroundColor:'#ffffff', scale:2});
@@ -276,23 +284,24 @@ async function saveAsPdf(){
 function setShareLinks(typeName){
   const site = SITE_URL || (location.origin + location.pathname);
   const text = `私は「器用貧乏の型診断」で ${typeName} でした。#器用貧乏の型診断\n${site}`;
-  const copyBtn = document.getElementById('copy');
-  if(copyBtn){ copyBtn.onclick = async ()=>{ await navigator.clipboard.writeText(text); alert('コピーしました'); }; }
-  const x = document.getElementById('xshare');
-  const ln = document.getElementById('lnshare');
-  if(x)  x.href  = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-  if(ln) ln.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(site)}`;
+  document.getElementById('copy').onclick = async ()=>{
+    await navigator.clipboard.writeText(text); alert('コピーしました');
+  };
+  document.getElementById('xshare').href  =
+    `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  document.getElementById('lnshare').href =
+    `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(site)}`;
 }
 
-// イベント接続
- document.getElementById('calc').addEventListener('click', calcAndRender);
- document.getElementById('reset').addEventListener('click', ()=>{
+/* ============ イベント接続 ============ */
+document.getElementById('calc').addEventListener('click', calcAndRender);
+document.getElementById('reset').addEventListener('click', ()=>{
   document.querySelectorAll('input[type=radio]').forEach(n=>n.checked=false);
   document.getElementById('resultCard').style.display='none';
   if(chart) chart.destroy();
- });
- document.getElementById('saveImg').addEventListener('click', saveAsImage);
- document.getElementById('savePdf').addEventListener('click', saveAsPdf);
+});
+document.getElementById('saveImg').addEventListener('click', saveAsImage);
+document.getElementById('savePdf').addEventListener('click', saveAsPdf);
 </script>
 </body>
 </html>
