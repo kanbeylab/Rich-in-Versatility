@@ -61,7 +61,7 @@
   @media (max-width:840px){ .row{grid-template-columns:1fr} }
   a.pill{ text-decoration:none }
 
-  /* 判定の見出しを中央に大きく表示 */
+  /* 中央どーん＋画像 */
   .winner-section{
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; margin:24px 0;
@@ -70,6 +70,13 @@
     font-size:36px; font-weight:900; line-height:1.4; margin-top:12px;
   }
   @media (max-width:480px){ .winner-big{ font-size:30px; } }
+
+  .hero { margin-top:12px; display:none; justify-content:center }
+  .hero img{
+    width:180px; height:180px; object-fit:contain;
+    border:1px solid var(--line); border-radius:14px; background:#fff;
+    box-shadow:0 6px 14px rgba(0,0,0,.06);
+  }
 </style>
 </head>
 <body>
@@ -87,12 +94,15 @@
 
   <div id="resultCard" class="card" style="margin-top:16px;display:none">
     <div class="row">
-      <!-- 左カラム：判定（中央どーん表示） -->
+      <!-- 左カラム：判定（中央どーん＋画像） -->
       <div>
         <h2>あなたの型（判定）</h2>
         <div class="winner-section">
           <div id="winner" class="winner-big"></div>
           <div id="summary" class="muted" style="margin-top:8px"></div>
+          <div id="hero" class="hero" aria-hidden="true">
+            <img id="heroImg" alt="">
+          </div>
           <div id="tieWrap" style="margin-top:8px">
             <span id="tieNote" class="pill" style="display:none">同点は優先順で判定</span>
           </div>
@@ -163,6 +173,26 @@ const QUESTIONS = [
   { id:'q10', text:'アイデアをよく書き留めるが、形にならないまま溜まりがちだ',     type:'ideator' },
 ];
 
+/* 画像設定 */
+const SHOW_IMAGE = true;           // 画像ON/OFF
+const IMAGE_BASE = 'assets';       // 画像フォルダ
+const TYPE_IMAGES = {
+  translator: 'translator.png',
+  catalyst:   'catalyst.png',
+  editor:     'editor.png',
+  director:   'director.png',
+  ideator:    'ideator.png'
+};
+// 画像未設置でも崩れないプレースホルダー（薄グレー）
+const FALLBACK_DATA_URL =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180">
+  <rect width="100%" height="100%" rx="14" ry="14" fill="#f3f4f6" stroke="#e5e7eb"/>
+  <circle cx="90" cy="75" r="36" fill="#e5e7eb"/>
+  <rect x="35" y="125" width="110" height="20" rx="10" fill="#e5e7eb"/>
+</svg>`);
+
+/* ============ フィードバック文 ============ */
 const FEEDBACK = {
   translator: {
     strength:'専門的で難しいことを、誰にでもわかる言葉で説明できる。',
@@ -227,7 +257,7 @@ function calcAndRender(){
   const tie = sorted.filter(s=>s.score===winner.score).length>1;
   const fb=FEEDBACK[winner.key];
 
-  // 表示（中央どーん）
+  // 表示（中央どーん＋画像）
   const card = document.getElementById('resultCard');
   card.style.display='block';
   const wEl = document.getElementById('winner');
@@ -253,6 +283,19 @@ function calcAndRender(){
     options:{scales:{r:{suggestedMin:0,suggestedMax:10,ticks:{display:false}}},
              plugins:{legend:{display:false}}}
   });
+
+  // 画像切替
+  const hero    = document.getElementById('hero');
+  const heroImg = document.getElementById('heroImg');
+  if (SHOW_IMAGE) {
+    const file = TYPE_IMAGES[winner.key];
+    heroImg.src = file ? `${IMAGE_BASE}/${file}` : FALLBACK_DATA_URL;
+    heroImg.alt = `${winner.name}のイメージ`;
+    heroImg.onerror = ()=>{ heroImg.src = FALLBACK_DATA_URL; };
+    hero.style.display = 'flex';
+  } else {
+    hero.style.display = 'none';
+  }
 
   // シェア更新
   setShareLinks(winner.name);
